@@ -19,16 +19,30 @@ image_id = 000000
 annotation_id = 0
 
 
+
 def addCatItem(name):
     global category_item_id
     category_item = dict()
     category_item['supercategory'] = 'none'
-    category_item_id += 1
+    if ifcatgory:
+        category_item_id =category_id_list.index(name)
+    else :
+        category_item_id += 1
     category_item['id'] = category_item_id
     category_item['name'] = name
     coco['categories'].append(category_item)
     category_set[name] = category_item_id
     return category_item_id
+    # else :
+    #     global category_item_id
+    #     category_item = dict()
+    #     category_item['supercategory'] = 'none'
+    #     category_item_id += 1
+    #     category_item['id'] = category_item_id
+    #     category_item['name'] = name
+    #     coco['categories'].append(category_item)
+    #     category_set[name] = category_item_id
+    #     return category_item_id
 
 
 def addImgItem(file_name, size):
@@ -139,6 +153,8 @@ def parseXmlFilse(data_dir, json_save_path, split='trainval'):
             current_image_id = addImgItem(file_name, size)
             print('add image with name: {}\tand\tsize: {}'.format(file_name, size))
         elif file_name in image_set:
+            print(file_name)
+            print("duplicated \n")
             raise Exception('file_name duplicated')
         else:
             raise Exception("file name:{}\t size:{}".format(file_name, size))
@@ -198,6 +214,8 @@ def parseXmlFilse(data_dir, json_save_path, split='trainval'):
     print("image nums:{}".format(len(coco['images'])))
     print("bbox nums:{}".format(len(coco['annotations'])))
 
+category_id_list=("rose_P01","rose_R02","mildew")#给出顺序，不给顺序会把下面那个变量置为0
+ifcatgory=1
 
 if __name__ == '__main__':
     """
@@ -209,18 +227,25 @@ if __name__ == '__main__':
             2.xml标签文件存放的文件夹
         json_save_path:json文件输出的文件夹
         split:主要用于voc2012查找xx.txt,如train.txt.如果用格式2，则不会用到该参数
+
+        不写catgory时，生成顺序为文件顺序（不建议因为生成不同文件会可能造成命名不同）
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--voc-dir', type=str, default=r'C:\Users\lenovo\Desktop\agriculture\bingchonghai\VOC2007', help='voc path')
-    parser.add_argument('-s', '--save-path', type=str, default=r'C:\Users\lenovo\Desktop\agriculture\bingchonghai\VOC2007/coco.json', help='json save path')
+    parser.add_argument('-d', '--voc-dir', type=str, default=r'/home/gaoshanwei/mmdect/mmdetection/data/VOCdevkit/VOC2007', help='voc path')
+    parser.add_argument('-s', '--save-path', type=str, default=r'/home/gaoshanwei/mmdect/mmdetection/data/cocodevkit/train.json', help='json save path')
     parser.add_argument('-t', '--type', type=str, default='trainsharp', help='only use in voc2012/2007')
     opt = parser.parse_args()
+    if category_id_list is not None:
+        ifcatgory=1
+    else:
+        ifcatgory=0
     if len(sys.argv) > 1:
         print(opt)
         parseXmlFilse(opt.voc_dir, opt.save_path, opt.type)
     else:
         # voc_data_dir = r'D:\dataset\VOC2012\VOCdevkit\VOC2012'
-        voc_data_dir = r'C:\Users\lenovo\Desktop\agriculture\bingchonghai\VOC2007'
-        json_save_path = r'C:\Users\lenovo\Desktop\agriculture\bingchonghai\VOC2007/train.json'
-        split = 'trainsharp'
+        # voc_data_dir = r'C:\Users\lenovo\Desktop\agriculture\bingchonghai\VOC2007'
+        voc_data_dir = r'/home/gsw//work_dir/plant_voc'
+        json_save_path = r'/home/gsw/mmdetection/data/coco2/annotations/instances_test2017.json'
+        split = 'test'
         parseXmlFilse(data_dir=voc_data_dir, json_save_path=json_save_path, split=split)
